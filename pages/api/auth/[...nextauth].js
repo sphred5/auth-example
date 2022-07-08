@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { ConnectToDatabase } from "../../../lib/db.js";
+import { connectToDatabase } from "../../../lib/db.js";
 import { verifyPassword } from "../../../lib/auth.js";
 
 export default NextAuth({
@@ -10,7 +10,7 @@ export default NextAuth({
   providers: [
     CredentialsProvider({
       async authorize(credentials) {
-        const client = await ConnectToDatabase();
+        const client = await connectToDatabase();
         const usersCollection = client.db("auth").collection("users");
 
         const user = await usersCollection.findOne({
@@ -26,7 +26,7 @@ export default NextAuth({
           user.password
         );
 
-        if (!valid) {
+        if (!isValid) {
           client.close();
           throw new Error("Could not log you in!");
         }

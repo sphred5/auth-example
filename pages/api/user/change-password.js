@@ -1,4 +1,6 @@
 import { getSession } from "next-auth/react";
+import { connectToDatabase } from "../../../lib/db.js";
+import { verifyPassword, hashPassword } from "../../../lib/auth.js";
 
 async function handler(req, res) {
   if (req.method !== "PATCH") {
@@ -10,6 +12,36 @@ async function handler(req, res) {
     res.status(401).json({ message: "Not authenticated" });
     return;
   }
+
+  const userEmail = session.user.email;
+  const oldPassword = req.body.oldPassword;
+  const newPassword = req.body.newPassword;
+
+  const client = await connectToDatabase();
+
+  const usersCollection = client.db("auth").collection("users");
+  const user = await usersCollection.findOne({ email: userEmail });
+
+  if (!user) {
+    res.status(404).json({ message: "User not found" });
+    client.close();
+    return;
+  }
+  const currentPassword = user.password;
+  passwordsAreEqual = await verifyPassword(oldPassword, currentPassword);
+  if (!passwordsAreEqual) {
+    res.status(403).json({ message: "Not authorized" });
+    client.close();
+    return;
+  }
+  const hashedPassword = await hashPassword(newPassword);
+
+  const result = await useCollection.updateOne(
+    { email: userEmail },
+    { $set: { password: hashedPassword } }
+  );
+  client.close();
+  res.status(201).json({ message: "Password updated!" });
 }
 
 export default handler;

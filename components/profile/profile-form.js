@@ -8,8 +8,8 @@ function ProfileForm(props) {
   function submitHandler(e) {
     e.preventDefault();
 
-    enteredOldPassword = oldPasswordInputRef.current.value;
-    enteredNewPassword = newPasswordInputRef.current.value;
+    const enteredOldPassword = oldPasswordInputRef.current.value;
+    const enteredNewPassword = newPasswordInputRef.current.value;
 
     // TODO add validation
     props.onChangePassword({

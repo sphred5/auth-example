@@ -28,7 +28,7 @@ async function handler(req, res) {
     return;
   }
   const currentPassword = user.password;
-  passwordsAreEqual = await verifyPassword(oldPassword, currentPassword);
+  const passwordsAreEqual = await verifyPassword(oldPassword, currentPassword);
   if (!passwordsAreEqual) {
     res.status(403).json({ message: "Not authorized" });
     client.close();
@@ -36,7 +36,7 @@ async function handler(req, res) {
   }
   const hashedPassword = await hashPassword(newPassword);
 
-  const result = await useCollection.updateOne(
+  const result = await usersCollection.updateOne(
     { email: userEmail },
     { $set: { password: hashedPassword } }
   );
